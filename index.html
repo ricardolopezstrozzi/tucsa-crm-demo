@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0B1F3A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>TUCSA · Seguimiento de Clientes</title>
+<style>
+:root{
+  --navy:#0B1F3A; --blue:#2F80ED; --soft-blue:#DCEBFF;
+  --text-dark:#111827; --text-gray:#4B5563; --border:#E5E7EB;
+  --bg-light:#F8FAFC; --white:#FFFFFF;
+  --green:#10B981; --red:#EF4444; --amber:#F59E0B; --purple:#8B5CF6; --teal:#0EA5E9;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#E8EDF4;color:var(--text-dark);font-size:15px}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;background:var(--bg-light);display:flex;flex-direction:column;position:relative;box-shadow:0 0 30px rgba(11,31,58,.15)}
+
+/* HEADER */
+header{background:var(--navy);color:#fff;padding:14px 16px 12px;position:sticky;top:0;z-index:50}
+.hd-row{display:flex;align-items:center;justify-content:space-between}
+.hd-logo{display:flex;align-items:center;gap:10px}
+.hd-logo .bus{width:36px;height:36px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:19px}
+.hd-logo h1{font-size:17px;font-weight:700;letter-spacing:.3px}
+.hd-logo p{font-size:11px;color:var(--soft-blue)}
+.badge-demo{background:var(--amber);color:#1f1300;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:.8px}
+.badge-live{background:var(--green);color:#fff;font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;letter-spacing:.8px}
+
+/* MAIN */
+main{flex:1;overflow-y:auto;padding:14px 14px 90px}
+.view{display:none}.view.active{display:block}
+h2.sec{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-gray);margin:18px 2px 8px}
+h2.sec:first-child{margin-top:2px}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.kpi .n{font-size:26px;font-weight:800;color:var(--navy);line-height:1.1}
+.kpi .l{font-size:11.5px;color:var(--text-gray);margin-top:2px}
+.kpi.hl{background:var(--navy);border-color:var(--navy)}
+.kpi.hl .n{color:#fff}.kpi.hl .l{color:var(--soft-blue)}
+
+/* FUNNEL */
+.funnel{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px}
+.f-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;cursor:pointer}
+.f-row:last-child{margin-bottom:0}
+.f-lab{width:118px;font-size:12px;color:var(--text-dark);font-weight:600;flex-shrink:0}
+.f-track{flex:1;height:20px;background:var(--bg-light);border-radius:6px;overflow:hidden}
+.f-bar{height:100%;border-radius:6px;min-width:4px;transition:width .5s}
+.f-n{width:30px;text-align:right;font-size:12.5px;font-weight:700;color:var(--text-gray)}
+
+/* NEXT ACTIONS */
+.action-card{background:#fff;border:1px solid var(--border);border-radius:13px;padding:11px 13px;margin-bottom:8px;display:flex;gap:11px;align-items:flex-start;cursor:pointer}
+.action-card .dt{flex-shrink:0;width:46px;text-align:center;background:var(--soft-blue);border-radius:9px;padding:5px 2px}
+.action-card .dt .d{font-size:16px;font-weight:800;color:var(--navy);line-height:1}
+.action-card .dt .m{font-size:9.5px;font-weight:700;color:var(--blue);text-transform:uppercase}
+.action-card.overdue .dt{background:#FEE2E2}
+.action-card.overdue .dt .d{color:var(--red)}.action-card.overdue .dt .m{color:var(--red)}
+.action-card .tx .e{font-size:13.5px;font-weight:700;color:var(--navy)}
+.action-card .tx .a{font-size:12.5px;color:var(--text-gray);margin-top:1px}
+.empty{padding:26px 10px;text-align:center;color:var(--text-gray);font-size:13px;background:#fff;border:1px dashed var(--border);border-radius:13px}
+
+/* SEARCH + CHIPS */
+.search{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:12px;padding:9px 12px;gap:8px;margin-bottom:10px}
+.search input{border:none;outline:none;flex:1;font-size:14.5px;background:transparent}
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:8px;margin-bottom:4px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;font-size:12px;font-weight:600;padding:6.5px 12px;border-radius:20px;background:#fff;border:1px solid var(--border);color:var(--text-gray);cursor:pointer;white-space:nowrap}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.chip .ct{opacity:.65;font-weight:500}
+
+/* PROSPECT CARDS */
+.pcard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:9px;cursor:pointer}
+.pcard:active{background:#F1F6FE}
+.pc-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pc-name{font-size:15px;font-weight:700;color:var(--navy)}
+.pc-zone{font-size:12px;color:var(--text-gray);margin-top:2px}
+.pc-sector{font-size:12px;color:var(--blue);margin-top:1px}
+.pills{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.pill{font-size:10.5px;font-weight:700;padding:3.5px 9px;border-radius:20px;letter-spacing:.2px}
+.pc-next{margin-top:8px;font-size:12px;color:var(--text-gray);background:var(--bg-light);border-radius:8px;padding:6px 9px;display:flex;gap:6px;align-items:center}
+.pc-next b{color:var(--navy)}
+.prio-Alta{background:#FEE2E2;color:#B91C1C}
+.prio-Media{background:#FEF3C7;color:#92400E}
+.prio-Baja{background:var(--bg-light);color:var(--text-gray)}
+
+/* DETAIL SHEET */
+.sheet-bg{position:fixed;inset:0;background:rgba(11,31,58,.45);z-index:100;display:none}
+.sheet-bg.open{display:block}
+.sheet{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;max-height:94dvh;background:var(--bg-light);border-radius:20px 20px 0 0;z-index:101;display:none;flex-direction:column}
+.sheet.open{display:flex}
+.sh-head{background:#fff;border-radius:20px 20px 0 0;padding:10px 16px 12px;border-bottom:1px solid var(--border)}
+.sh-grab{width:40px;height:4px;background:var(--border);border-radius:4px;margin:0 auto 10px}
+.sh-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.sh-title{font-size:18px;font-weight:800;color:var(--navy)}
+.sh-sub{font-size:12.5px;color:var(--text-gray);margin-top:2px}
+.sh-close{background:var(--bg-light);border:none;width:32px;height:32px;border-radius:50%;font-size:15px;color:var(--text-gray);cursor:pointer;flex-shrink:0}
+.sh-body{overflow-y:auto;padding:14px 16px 30px;flex:1}
+
+/* quick actions */
+.qa-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
+.qa{background:#fff;border:1px solid var(--border);border-radius:12px;padding:10px 4px;text-align:center;text-decoration:none;color:var(--navy);cursor:pointer}
+.qa.dis{opacity:.35;pointer-events:none}
+.qa .ic{font-size:18px}
+.qa .t{font-size:10.5px;font-weight:600;margin-top:3px;color:var(--text-gray)}
+
+/* status selector */
+.st-chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.st-chips::-webkit-scrollbar{display:none}
+.stc{flex-shrink:0;font-size:12px;font-weight:600;padding:7px 13px;border-radius:20px;background:#fff;border:1.5px solid var(--border);color:var(--text-gray);cursor:pointer}
+.stc.on{color:#fff}
+
+/* form */
+.fcard{background:#fff;border:1px solid var(--border);border-radius:14px;padding:13px 14px;margin-bottom:10px}
+.frow{margin-bottom:11px}.frow:last-child{margin-bottom:0}
+.flabel{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-gray);margin-bottom:4px;display:block}
+.finput,.fsel,.ftxt{width:100%;border:1px solid var(--border);border-radius:10px;padding:9px 11px;font-size:14.5px;font-family:inherit;background:var(--bg-light);color:var(--text-dark);outline:none}
+.finput:focus,.ftxt:focus,.fsel:focus{border-color:var(--blue);background:#fff}
+.ftxt{resize:vertical;min-height:64px}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.why{background:#FFFBEB;border:1px solid #FDE68A;border-radius:12px;padding:10px 12px;font-size:13px;color:#78350F;line-height:1.45}
+.why b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;margin-bottom:3px;color:#92400E}
+
+/* activity log */
+.act{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg-light)}
+.act:last-child{border:none}
+.act .dot{width:30px;height:30px;border-radius:50%;background:var(--soft-blue);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.act .b .h{font-size:12px;font-weight:700;color:var(--navy)}
+.act .b .h span{font-weight:500;color:var(--text-gray)}
+.act .b .x{font-size:13px;color:var(--text-dark);margin-top:1px;line-height:1.4}
+.act-add{display:flex;gap:8px;margin-top:10px}
+.act-add select{width:108px;flex-shrink:0}
+.act-add input{flex:1}
+.btn{border:none;border-radius:11px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn-blue{background:var(--blue);color:#fff}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-line{background:#fff;border:1.5px solid var(--border);color:var(--navy)}
+.btn-red{background:#FEE2E2;color:#B91C1C}
+.btn-sm{padding:9px 13px;font-size:13px}
+.btn-full{width:100%}
+.btn:disabled{opacity:.5}
+
+/* BOTTOM NAV */
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;border-top:1px solid var(--border);display:flex;z-index:60;padding-bottom:env(safe-area-inset-bottom)}
+.nv{flex:1;text-align:center;padding:9px 0 8px;cursor:pointer;color:#9CA3AF;border:none;background:none;font-family:inherit}
+.nv .i{font-size:20px;line-height:1}
+.nv .t{font-size:10px;font-weight:600;margin-top:2px}
+.nv.on{color:var(--blue)}
+.fab{position:fixed;bottom:78px;right:max(16px,calc(50% - 240px + 16px));width:54px;height:54px;border-radius:50%;background:var(--blue);color:#fff;font-size:26px;border:none;box-shadow:0 6px 16px rgba(47,128,237,.45);cursor:pointer;z-index:59;display:none}
+.fab.show{display:block}
+
+/* SETTINGS */
+.set-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px}
+.set-card h3{font-size:14.5px;font-weight:800;color:var(--navy);margin-bottom:4px}
+.set-card p.d{font-size:13px;color:var(--text-gray);line-height:1.5;margin-bottom:10px}
+.mode-row{display:flex;gap:8px;margin-bottom:12px}
+.mode{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:11px;text-align:center;cursor:pointer;background:var(--bg-light)}
+.mode.on{border-color:var(--blue);background:var(--soft-blue)}
+.mode .mt{font-size:13px;font-weight:700;color:var(--navy)}
+.mode .ms{font-size:11px;color:var(--text-gray);margin-top:2px}
+.sync-status{font-size:12.5px;margin-top:9px;padding:8px 11px;border-radius:9px;display:none}
+.sync-status.ok{display:block;background:#D1FAE5;color:#065F46}
+.sync-status.err{display:block;background:#FEE2E2;color:#B91C1C}
+.sync-status.info{display:block;background:var(--soft-blue);color:var(--navy)}
+.steps li{font-size:13px;color:var(--text-dark);line-height:1.55;margin:0 0 9px 18px}
+.steps code{background:var(--bg-light);padding:1px 5px;border-radius:5px;font-size:12px;color:var(--navy)}
+.codebox{background:var(--navy);color:#D7E5FB;border-radius:12px;padding:12px;font-family:Consolas,Menlo,monospace;font-size:10.5px;line-height:1.5;white-space:pre;overflow-x:auto;max-height:240px;overflow-y:auto;margin-bottom:9px}
+.foot{text-align:center;font-size:11px;color:#9CA3AF;padding:18px 0 6px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:13px;font-weight:600;padding:10px 18px;border-radius:30px;z-index:200;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+.cnt-line{font-size:12.5px;color:var(--text-gray);margin:2px 2px 10px}
+</style>
+</head>
+<body>
+<div id="app">
+<header>
+  <div class="hd-row">
+    <div class="hd-logo">
+      <div class="bus">🚌</div>
+      <div><h1>TUCSA</h1><p>Seguimiento de Clientes · Saltillo–Ramos Arizpe</p></div>
+    </div>
+    <span id="hdBadge" class="badge-demo">DEMO</span>
+  </div>
+</header>
+
+<main>
+  <!-- INICIO -->
+  <section class="view active" id="view-inicio">
+    <h2 class="sec">Resumen</h2>
+    <div class="kpis" id="kpis"></div>
+    <h2 class="sec">Embudo de ventas</h2>
+    <div class="funnel" id="funnel"></div>
+    <h2 class="sec">Próximas acciones</h2>
+    <div id="homeActions"></div>
+  </section>
+
+  <!-- PIPELINE -->
+  <section class="view" id="view-pipeline">
+    <div class="search">🔍<input id="q" type="search" placeholder="Buscar empresa, parque, sector…"></div>
+    <div class="chips" id="stChips"></div>
+    <div class="chips" id="prChips"></div>
+    <div class="cnt-line" id="cnt"></div>
+    <div id="plist"></div>
+  </section>
+
+  <!-- AGENDA -->
+  <section class="view" id="view-agenda">
+    <h2 class="sec">Agenda de seguimiento</h2>
+    <div id="agendaList"></div>
+  </section>
+
+  <!-- AJUSTES -->
+  <section class="view" id="view-ajustes">
+    <h2 class="sec">Conexión de datos</h2>
+    <div class="set-card">
+      <h3>¿Dónde se guardan los datos?</h3>
+      <p class="d">En modo <b>Demo</b> los cambios se guardan en este teléfono. En modo <b>Google Sheets</b> la app <b>lee y escribe</b> directamente en tu hoja de cálculo: lo que cambies aquí se ve en el Sheet y viceversa.</p>
+      <div class="mode-row">
+        <div class="mode" id="modeLocal" onclick="setMode('local')"><div class="mt">📱 Demo local</div><div class="ms">Guarda en el teléfono</div></div>
+        <div class="mode" id="modeSheet" onclick="setMode('sheet')"><div class="mt">📊 Google Sheets</div><div class="ms">Lee y escribe en vivo</div></div>
+      </div>
+      <div id="sheetCfg" style="display:none">
+        <div class="frow">
+          <label class="flabel">URL del Web App (Apps Script)</label>
+          <input class="finput" id="gasUrl" placeholder="https://script.google.com/macros/s/…/exec">
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="btn btn-blue btn-sm" style="flex:1" onclick="pullSheet()">⬇️ Traer del Sheet</button>
+          <button class="btn btn-navy btn-sm" style="flex:1" onclick="pushSheet()">⬆️ Enviar al Sheet</button>
+        </div>
+      </div>
+      <div class="sync-status" id="syncMsg"></div>
+    </div>
+
+    <div class="set-card">
+      <h3>Configurar Google Sheets (5 min)</h3>
+      <p class="d">Una sola vez. Después, todo el equipo trabaja sobre el mismo Sheet.</p>
+      <ol class="steps">
+        <li>Crea un Google Sheet nuevo (ej. <code>TUCSA Clientes</code>).</li>
+        <li>Menú <b>Extensiones → Apps Script</b>. Borra el contenido y pega el código de abajo.</li>
+        <li><b>Implementar → Nueva implementación → Aplicación web</b>. Ejecutar como: <i>tú</i>. Acceso: <i>Cualquier persona</i>.</li>
+        <li>Copia la URL que termina en <code>/exec</code> y pégala arriba.</li>
+        <li>Toca <b>Enviar al Sheet</b> para cargar los prospectos por primera vez.</li>
+      </ol>
+      <div class="codebox" id="gasCode"></div>
+      <button class="btn btn-line btn-sm btn-full" onclick="copyGas()">📋 Copiar código</button>
+    </div>
+
+    <div class="set-card">
+      <h3>Datos</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-line btn-sm" style="flex:1" onclick="exportCSV()">⬇️ Exportar CSV</button>
+        <button class="btn btn-red btn-sm" style="flex:1" onclick="resetDemo()">↺ Restablecer demo</button>
+      </div>
+      <p class="d" style="margin:10px 0 0;font-size:12px">Demo cargado con los 135 prospectos de <i>Leads_TUCSA</i> y <i>Cuentas_Objetivo</i> (duplicados unificados). Los registros marcados [DEMO] son actividad simulada de ejemplo.</p>
+    </div>
+    <div class="foot">Demo · Powered by HubSincro · ricardo@hubsincro.com</div>
+  </section>
+</main>
+
+<button class="fab" id="fab" onclick="openNew()">+</button>
+
+<nav>
+  <button class="nv on" data-v="inicio" onclick="go('inicio')"><div class="i">🏠</div><div class="t">Inicio</div></button>
+  <button class="nv" data-v="pipeline" onclick="go('pipeline')"><div class="i">📋</div><div class="t">Prospectos</div></button>
+  <button class="nv" data-v="agenda" onclick="go('agenda')"><div class="i">📅</div><div class="t">Agenda</div></button>
+  <button class="nv" data-v="ajustes" onclick="go('ajustes')"><div class="i">⚙️</div><div class="t">Ajustes</div></button>
+</nav>
+
+<!-- DETAIL SHEET -->
+<div class="sheet-bg" id="shBg" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sh-head">
+    <div class="sh-grab"></div>
+    <div class="sh-title-row">
+      <div><div class="sh-title" id="dTitle"></div><div class="sh-sub" id="dSub"></div></div>
+      <button class="sh-close" onclick="closeSheet()">✕</button>
+    </div>
+  </div>
+  <div class="sh-body" id="dBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* ====== DATA ====== */
+const SEED = [{"id":1,"empresa":"JSP International","zona":"360 Industrial Park, Ramos Arizpe","sector":"Espumas de ingenieria","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":2,"empresa":"LEADGO","zona":"360 Industrial Park, Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":3,"empresa":"UNI Trade","zona":"360 Industrial Park, Ramos Arizpe","sector":"Logistica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":4,"empresa":"Vesuvius","zona":"360 Industrial Park, Ramos Arizpe","sector":"Refractarios/Metalurgia","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":5,"empresa":"Saint-Gobain","zona":"Alianza Derramadero","sector":"Vidrio / Materiales","tamano":"Media-grande (400+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":6,"empresa":"Yokohama","zona":"Alianza Derramadero","sector":"Llantas","tamano":"Media-grande (500+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":7,"empresa":"ZC Rubber","zona":"Alianza Derramadero","sector":"Llantas","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":8,"empresa":"Coplate","zona":"Alianza Derramadero, Saltillo","sector":"Autopartes - Recubrimiento","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":9,"empresa":"Multillanta","zona":"Alianza Derramadero, Saltillo","sector":"Llantas/Distribucion","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":10,"empresa":"Martinrea","zona":"Amistad / FINSA","sector":"Autopartes - Metalmecanica","tamano":"Grande (800+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":11,"empresa":"Mubea","zona":"Amistad / FINSA","sector":"Autopartes - Resortes","tamano":"Media-grande (400+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":12,"empresa":"DHL Supply Chain","zona":"Amistad / Ramos Arizpe","sector":"Logistica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":13,"empresa":"Samvardhana Motherson (SMP)","zona":"Amistad / Ramos Arizpe","sector":"Autopartes - Interiores","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":14,"empresa":"MATCOR (Matcor-Matsu)","zona":"Amistad Aeropuerto, Ramos Arizpe","sector":"Metalmecanica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":15,"empresa":"La-Z-Boy","zona":"Amistad Airport","sector":"Muebles","tamano":"Media-grande (400+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":16,"empresa":"Lear","zona":"Amistad Airport","sector":"Autopartes - Asientos/Arneses","tamano":"Grande (1000+)","prioridad":"Alta","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Contactado","proxAccion":"Conseguir contacto de RH (1000+ empleados)","proxFecha":"2026-06-17","notas":"[DEMO] Plantilla 1000+. Alta necesidad de rutas por turnos.","origen":"Cuentas objetivo","actividades":[{"fecha":"2026-06-09","tipo":"LinkedIn","texto":"Solicitud enviada a gerente de RH planta Amistad Airport."}]},{"id":17,"empresa":"Lennox","zona":"Amistad Airport","sector":"HVAC / Climatizacion","tamano":"Grande (800+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":18,"empresa":"Sanhua","zona":"Amistad Airport","sector":"Componentes HVAC","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":19,"empresa":"MAHLE","zona":"Amistad Chuy Maria","sector":"Autopartes - Termico","tamano":"Media-grande (400+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":20,"empresa":"POSCO","zona":"Amistad Chuy Maria","sector":"Acero - Procesamiento","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":21,"empresa":"Amvian Mexico","zona":"Amistad Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":22,"empresa":"M2L Services de Mexico","zona":"Amistad Ramos Arizpe","sector":"Servicios industriales","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":23,"empresa":"MMG Manufacturas de Saltillo","zona":"Amistad Ramos Arizpe","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":24,"empresa":"Modine Ramos","zona":"Amistad Ramos Arizpe","sector":"Autopartes - Termico","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":25,"empresa":"Nortek Global HVAC / Nordyne","zona":"Amistad Ramos Arizpe","sector":"HVAC","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":26,"empresa":"Samsong Mexico","zona":"Amistad Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":27,"empresa":"TitanX Engine Cooling","zona":"Amistad Ramos Arizpe","sector":"Autopartes - Enfriamiento","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":28,"empresa":"Transporte Intermodal Mexicano","zona":"Amistad Ramos Arizpe","sector":"Logistica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":29,"empresa":"TSM Connect","zona":"Amistad Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":30,"empresa":"Victory Packaging","zona":"Amistad Ramos Arizpe","sector":"Empaque","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":31,"empresa":"Vuteq","zona":"Amistad Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":32,"empresa":"Meggitt","zona":"Amistad Saltillo Sur","sector":"Aeroespacial","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":33,"empresa":"Mercury Products","zona":"Amistad Saltillo Sur","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":34,"empresa":"General Motors","zona":"Ramos Arizpe · Zona Industrial","sector":"Armadora automotriz","tamano":"Muy grande (3000+)","prioridad":"Baja","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 800 508 0000","correo":"","sitio":"gm.com.mx","porQue":"Miles de empleados, pero probablemente ya tiene transportistas. Solo rutas específicas.","estatus":"Descartado","proxAccion":"","proxFecha":"","notas":"[DEMO] Ya cuenta con transportistas contratados. Revisar licitaciones en 2027.","origen":"Leads calificados","actividades":[{"fecha":"2026-06-02","tipo":"Llamada","texto":"Compras confirma contrato vigente de transporte hasta 2027."}]},{"id":35,"empresa":"BorgWarner","zona":"Ramos Arizpe · Parque Santa María","sector":"Autopartes Tier 1","tamano":"","prioridad":"Alta","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 866 0200","correo":"","sitio":"borgwarner.com","porQue":"Opera 24h. Reseñas mencionan 'transporte'. Tier 1 con plantilla grande por turno.","estatus":"Contactado","proxAccion":"Ubicar gerente de RH en LinkedIn","proxFecha":"2026-06-12","notas":"[DEMO] Reseñas de empleados mencionan transporte. Falta contacto directo.","origen":"Leads calificados","actividades":[{"fecha":"2026-06-08","tipo":"Llamada","texto":"Conmutador: RH ve transporte; pidieron correo de presentación."}]},{"id":36,"empresa":"Acero Prime","zona":"DAVISA Santa Maria, Ramos Arizpe","sector":"Acero - Servicio","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":37,"empresa":"APTIV","zona":"DAVISA Santa Maria, Ramos Arizpe","sector":"Autopartes - Electronica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":38,"empresa":"BIC","zona":"DAVISA Santa Maria, Ramos Arizpe","sector":"Bienes de consumo","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":39,"empresa":"Adient","zona":"Saltillo · Parque Ind. Derramadero","sector":"Asientos automotrices","tamano":"Grande (800+)","prioridad":"Alta","contactoNombre":"Jorge Salinas","contactoPuesto":"Relaciones Laborales","linkedin":"","telefono":"+52 449 176 0400","correo":"","sitio":"adient.com","porQue":"Tier 1 en Derramadero (lejos de zona urbana) = transporte casi indispensable.","estatus":"Propuesta","proxAccion":"Seguimiento a propuesta (2 rutas Derramadero)","proxFecha":"2026-06-16","notas":"[DEMO] Propuesta enviada el 9-jun: 2 rutas Saltillo centro → Derramadero, 3 turnos.","origen":"Leads calificados","actividades":[{"fecha":"2026-05-28","tipo":"LinkedIn","texto":"Contacto con gerente de Relaciones Laborales."},{"fecha":"2026-06-02","tipo":"Visita","texto":"Visita a planta Derramadero; levantamiento de rutas."},{"fecha":"2026-06-09","tipo":"Correo","texto":"Propuesta económica enviada."}]},{"id":40,"empresa":"CIE Automotive","zona":"DAVISA Santa Monica","sector":"Autopartes - Forja","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":41,"empresa":"Komatsu","zona":"DAVISA Santa Monica","sector":"Maquinaria pesada","tamano":"Grande (500+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":42,"empresa":"Marelli","zona":"DAVISA Santa Monica","sector":"Autopartes - Electronica","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":43,"empresa":"Metalsa","zona":"DAVISA Santa Monica","sector":"Autopartes - Estructuras","tamano":"Grande (1000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":44,"empresa":"Yanfeng","zona":"DAVISA Santa Monica","sector":"Autopartes - Interiores","tamano":"Grande (800+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":45,"empresa":"Yazaki","zona":"DAVISA Santa Monica","sector":"Autopartes - Arneses","tamano":"Grande (1000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":46,"empresa":"Android de Mexico","zona":"Derramadero, Saltillo","sector":"Autopartes - Ensambles","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":47,"empresa":"Chrysler (Stellantis Ensamble)","zona":"Derramadero, Saltillo","sector":"Automotriz - Ensamble","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":48,"empresa":"Daimler / Mercedes-Benz (FCA-Daimler)","zona":"Derramadero, Saltillo","sector":"Automotriz - Camiones","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":49,"empresa":"Ensambles Derramadero","zona":"Derramadero, Saltillo","sector":"Autopartes - Ensambles","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":50,"empresa":"Paramount New Materials","zona":"Derramadero, Saltillo","sector":"Materiales","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":51,"empresa":"Stellantis","zona":"Derramadero, Saltillo","sector":"Automotriz - Armadora","tamano":"Muy grande (3000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":52,"empresa":"Ramos Arizpe Manufacturing","zona":"Ramos Arizpe · FINSA","sector":"Maquinaria","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 134 2950","correo":"","sitio":"ram-mx.com","porQue":"Planta dentro de FINSA. Verificar tamaño de plantilla antes de abordar.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]},{"id":53,"empresa":"ABC Group","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":54,"empresa":"Colonial Tool de Mexico","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Metalmecanica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":55,"empresa":"Daimay","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Autopartes - Interiores","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":56,"empresa":"East Emporia Company","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":57,"empresa":"Entron","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":58,"empresa":"Forvia","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":59,"empresa":"Grupo Arcoiris","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Bienes de consumo","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":60,"empresa":"Hwaseung Automotive de Mexico","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Autopartes - Hule","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":61,"empresa":"Metokote (PPG Coatings)","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Recubrimientos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":62,"empresa":"Pepsico","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Alimentos/Bebidas","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":63,"empresa":"PPG","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Quimica/Recubrimientos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":64,"empresa":"Raven Engineering","zona":"FINSA Coahuila, Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":65,"empresa":"Benteler","zona":"FINSA Ramos Arizpe","sector":"Autopartes - Metalmecanica","tamano":"Media-grande (400+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":66,"empresa":"Cooper Standard","zona":"FINSA Ramos Arizpe","sector":"Autopartes - Sellos","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":67,"empresa":"Faurecia","zona":"FINSA Ramos Arizpe","sector":"Autopartes","tamano":"Grande (500+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":68,"empresa":"Grupo Antolin","zona":"FINSA Ramos Arizpe","sector":"Autopartes - Interiores","tamano":"Grande (500+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":69,"empresa":"Johnson Controls","zona":"FINSA Ramos Arizpe","sector":"Autopartes","tamano":"Media-grande (400+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":70,"empresa":"Linamar","zona":"FINSA Ramos Arizpe","sector":"Autopartes - Maquinado","tamano":"Media (300+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":71,"empresa":"Magna","zona":"FINSA Ramos Arizpe","sector":"Autopartes","tamano":"Grande (1000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":72,"empresa":"Dong Kwang Ramos","zona":"Ramos Arizpe · Parque Santa María","sector":"Carrocería automotriz","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 438 4100","correo":"","sitio":"shnorthamerica.com","porQue":"Horario amplio con actividad nocturna (turnos). Proveedor coreano Tier.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]},{"id":73,"empresa":"Parker (Flexonics)","zona":"La Angostura, Saltillo","sector":"Componentes industriales","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":74,"empresa":"ALD Vacuum Technologies","zona":"Parques Ramos Arizpe","sector":"Tratamiento termico","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":75,"empresa":"Bard Manufacturing","zona":"Parques Ramos Arizpe","sector":"HVAC","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":76,"empresa":"Behr","zona":"Parques Ramos Arizpe","sector":"Autopartes - Termico","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":77,"empresa":"Coilplus Mexico","zona":"Parques Ramos Arizpe","sector":"Acero - Procesamiento","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":78,"empresa":"Delphi","zona":"Parques Ramos Arizpe","sector":"Autopartes - Electronica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":79,"empresa":"Flextronics (Flex)","zona":"Parques Ramos Arizpe","sector":"Electronica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":80,"empresa":"Formex Automotive Interiors","zona":"Parques Ramos Arizpe","sector":"Autopartes - Interiores","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":81,"empresa":"Fortis Plastics","zona":"Parques Ramos Arizpe","sector":"Plasticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":82,"empresa":"Greenheck","zona":"Parques Ramos Arizpe","sector":"Ventilacion/HVAC","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":83,"empresa":"Grupo G.A. Manufacturing","zona":"Parques Ramos Arizpe","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":84,"empresa":"GST Autoleather","zona":"Parques Ramos Arizpe","sector":"Autopartes - Piel","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":85,"empresa":"Heraeus Electro-Nite","zona":"Parques Ramos Arizpe","sector":"Instrumentacion","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":86,"empresa":"Hirotec (Avantec)","zona":"Parques Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":87,"empresa":"Huntington Foam","zona":"Parques Ramos Arizpe","sector":"Espumas/Plasticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":88,"empresa":"Iacna Mexico","zona":"Parques Ramos Arizpe","sector":"Autopartes - Acustica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":89,"empresa":"Indiana Tube de Mexico","zona":"Parques Ramos Arizpe","sector":"Metalmecanica - Tuberia","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":90,"empresa":"Intier Automotive Interiors","zona":"Parques Ramos Arizpe","sector":"Autopartes - Interiores","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":91,"empresa":"JNM de Mexico","zona":"Parques Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":92,"empresa":"KSR International","zona":"Parques Ramos Arizpe","sector":"Autopartes - Pedales","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":93,"empresa":"Luc-Mac Internacional","zona":"Parques Ramos Arizpe","sector":"Metalmecanica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":94,"empresa":"Manufacturas Everest","zona":"Parques Ramos Arizpe","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":95,"empresa":"Meridian Technologies","zona":"Parques Ramos Arizpe","sector":"Autopartes - Fundicion","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":96,"empresa":"Nacco","zona":"Parques Ramos Arizpe","sector":"Maquinaria/Montacargas","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":97,"empresa":"Neapco","zona":"Parques Ramos Arizpe","sector":"Autopartes - Drivetrain","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":98,"empresa":"Nimex","zona":"Parques Ramos Arizpe","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":99,"empresa":"Nova Plus","zona":"Parques Ramos Arizpe","sector":"Plasticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":100,"empresa":"Parkway Products de Mexico","zona":"Parques Ramos Arizpe","sector":"Plasticos/Moldeo","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":101,"empresa":"Pemsa Ramos Arizpe","zona":"Parques Ramos Arizpe","sector":"Autopartes - Estampado","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":102,"empresa":"Perrigo de Mexico","zona":"Parques Ramos Arizpe","sector":"Farmaceutica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":103,"empresa":"Pinturas y Ensambles de Mexico","zona":"Parques Ramos Arizpe","sector":"Autopartes - Pintura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":104,"empresa":"Senior Aerospace Ketema","zona":"Parques Ramos Arizpe","sector":"Aeroespacial","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":105,"empresa":"Shiloh de Mexico","zona":"Parques Ramos Arizpe","sector":"Autopartes - Metal","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":106,"empresa":"Spartech de Mexico","zona":"Parques Ramos Arizpe","sector":"Plasticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":107,"empresa":"Turck","zona":"Parques Ramos Arizpe","sector":"Automatizacion/Sensores","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":108,"empresa":"TWB de Mexico","zona":"Parques Ramos Arizpe","sector":"Autopartes - Soldadura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":109,"empresa":"Visteon","zona":"Parques Ramos Arizpe","sector":"Autopartes - Electronica","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":110,"empresa":"Warn Industries","zona":"Parques Ramos Arizpe","sector":"Autopartes - Malacates","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":111,"empresa":"Weidmann Electrical Technology","zona":"Parques Ramos Arizpe","sector":"Componentes electricos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":112,"empresa":"Wolverine","zona":"Parques Ramos Arizpe","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":113,"empresa":"Edesa (General Electric)","zona":"Parques Saltillo","sector":"Electrodomesticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":114,"empresa":"Manufacturas Zapaliname","zona":"Parques Saltillo","sector":"Manufactura","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":115,"empresa":"Caterpillar","zona":"Ramos Arizpe","sector":"Maquinaria pesada","tamano":"Grande (1000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":116,"empresa":"HCMF","zona":"Ramos Arizpe","sector":"Autopartes - Sunroofs","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":117,"empresa":"John Deere","zona":"Ramos Arizpe","sector":"Maquinaria agricola","tamano":"Grande (1000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":118,"empresa":"Julong","zona":"Ramos Arizpe","sector":"Plasticos de ingenieria","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":119,"empresa":"Whirlpool","zona":"Ramos Arizpe","sector":"Electrodomesticos","tamano":"Muy grande (2000+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":120,"empresa":"DIKEN International Mexico","zona":"Ramos Arizpe Industrial Park","sector":"Autopartes","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":121,"empresa":"Fastenal","zona":"Ramos Arizpe Industrial Park","sector":"Suministro industrial","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":122,"empresa":"LEON Plastic","zona":"Ramos Arizpe Industrial Park","sector":"Plasticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":123,"empresa":"LITCO Automation","zona":"Ramos Arizpe Industrial Park","sector":"Automatizacion","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":124,"empresa":"LONGDA Plastic","zona":"Ramos Arizpe Industrial Park","sector":"Plasticos","tamano":"","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":125,"empresa":"Nemak (Grupo)","zona":"Saltillo / Ramos","sector":"Autopartes - Fundicion","tamano":"Grande (800+)","prioridad":"","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"","porQue":"","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Cuentas objetivo","actividades":[]},{"id":126,"empresa":"Planta Minsa","zona":"Ramos Arizpe · Parque Ind. F. R. Alanís","sector":"Harina / alimentos","tamano":"","prioridad":"Alta","contactoNombre":"Laura Treviño","contactoPuesto":"Gerente de RH","linkedin":"","telefono":"+52 844 411 5600","correo":"recursoshumanos@minsa.com.mx","sitio":"minsa.com.mx","porQue":"Correo de RH directo. Planta con horario extendido y plantilla operativa amplia.","estatus":"Reunión agendada","proxAccion":"Reunión en planta: presentar rutas y unidades","proxFecha":"2026-06-12","notas":"[DEMO] Interesados en 2 rutas turno mixto. Piden referencias de otras plantas.","origen":"Leads calificados","actividades":[{"fecha":"2026-06-03","tipo":"Llamada","texto":"Primer contacto con recepción; canalizaron a RH."},{"fecha":"2026-06-05","tipo":"Correo","texto":"Enviada presentación de TUCSA a recursoshumanos@minsa.com.mx"},{"fecha":"2026-06-08","tipo":"Llamada","texto":"Laura confirma reunión el viernes 12 en planta."}]},{"id":127,"empresa":"Maquilados Hyplasa","zona":"Saltillo · Parque Ind. Las Torres","sector":"Estampado / autopartes","tamano":"","prioridad":"Alta","contactoNombre":"A. García","contactoPuesto":"Administración","linkedin":"","telefono":"+52 844 142 6325","correo":"a.garcia@hyplasa.com; e.gomez@hyplasa.com","sitio":"hyplasa.com","porQue":"Opera 24 horas (turnos rotativos) = necesidad clara de transporte. 4 contactos directos.","estatus":"En conversación","proxAccion":"Enviar propuesta para ruta de turno nocturno","proxFecha":"2026-06-11","notas":"[DEMO] Operan 24h. Hoy traen 2 rutas con otro proveedor; quejas por impuntualidad.","origen":"Leads calificados","actividades":[{"fecha":"2026-06-04","tipo":"Correo","texto":"Contacto inicial a a.garcia@hyplasa.com"},{"fecha":"2026-06-09","tipo":"Llamada","texto":"Solicitan cotización para turno nocturno (22:00-6:00)."}]},{"id":128,"empresa":"Grupo Industrial Saltillo (GIS)","zona":"Saltillo · Corporativo","sector":"Grupo industrial multisector","tamano":"","prioridad":"Alta","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 411 1000","correo":"contacto@gis.com.mx","sitio":"gis.com.mx","porQue":"Corporativo grande con varias plantas. Una cuenta puede abrir múltiples sitios.","estatus":"Contactado","proxAccion":"Llamada de seguimiento a Servicios Generales","proxFecha":"2026-06-13","notas":"[DEMO] Corporativo con varias plantas: una cuenta puede abrir múltiples sitios.","origen":"Leads calificados","actividades":[{"fecha":"2026-06-06","tipo":"Correo","texto":"Enviado correo de presentación a contacto@gis.com.mx"}]},{"id":129,"empresa":"AAM Ramos Manufacturing","zona":"Ramos Arizpe · Zona Industrial","sector":"Autopartes Tier 1","tamano":"","prioridad":"Alta","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 450 7500","correo":"","sitio":"aam.com","porQue":"Complejo de manufactura con turnos 7-17h y sábados. Operación de planta grande.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]},{"id":130,"empresa":"Sodecia Automotive Ramos","zona":"Ramos Arizpe · Parque Santa María","sector":"Autopartes Tier 1","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"sodecia.com","porQue":"Proveedor Tier mediano, terreno realista para contrato nuevo de transporte.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]},{"id":131,"empresa":"Dudek and Bock","zona":"Saltillo · Blvd. I. López Zertuche","sector":"Resortes / autopartes","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 416 2300","correo":"sales@dudek-bock.com","sitio":"dudek-bock.com","porQue":"Planta mediana con sitio propio y contacto comercial. Buen tamaño para TUCSA.","estatus":"En conversación","proxAccion":"Cotizar ruta Blvd. Zertuche (1er turno)","proxFecha":"2026-06-13","notas":"[DEMO] Planta mediana, buen tamaño para TUCSA.","origen":"Leads calificados","actividades":[{"fecha":"2026-06-05","tipo":"Correo","texto":"Respondieron de sales@: nos canalizan con administración."}]},{"id":132,"empresa":"Industrias Bella Unión","zona":"Saltillo · Blvd. Vito Alessio Robles","sector":"Metalurgia industrial","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 439 0925","correo":"ventas@bellaunion.mx","sitio":"bellaunion.mx","porQue":"Proveedor metalúrgico local con horario de planta y correo de contacto.","estatus":"Cerrado","proxAccion":"Inicio de servicio ruta 1","proxFecha":"2026-06-15","notas":"[DEMO] Contrato firmado: 1 ruta, 28 pasajeros, lun-sáb.","origen":"Leads calificados","actividades":[{"fecha":"2026-05-20","tipo":"Llamada","texto":"Primer contacto con ventas@bellaunion.mx"},{"fecha":"2026-05-27","tipo":"Visita","texto":"Reunión en planta; definición de ruta y horarios."},{"fecha":"2026-06-06","tipo":"Nota","texto":"Contrato firmado. Arranque 15-jun."}]},{"id":133,"empresa":"FINSA Coahuila (admin. de parque)","zona":"Ramos Arizpe · Parque FINSA","sector":"Administrador de parque industrial","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 81 8152 4200","correo":"","sitio":"finsa.net","porQue":"No transporta personal, pero administra el parque: puede referir o coordinar contrato marco.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]},{"id":134,"empresa":"Parque Industrial Amistad","zona":"Ramos Arizpe · La Esmeralda","sector":"Administrador de parque industrial","tamano":"","prioridad":"Media","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"+52 844 416 4040","correo":"","sitio":"amistadmexico.com","porQue":"Administrador de parque con múltiples plantas inquilinas. Vía de entrada agregada.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]},{"id":135,"empresa":"FCA / Stellantis Planta Motores","zona":"Ramos Arizpe · Zona Industrial","sector":"Armadora (motores)","tamano":"","prioridad":"Baja","contactoNombre":"","contactoPuesto":"","linkedin":"","telefono":"","correo":"","sitio":"fcagroup.com","porQue":"Igual que GM: gran plantilla pero contratos probablemente cerrados. Difícil entrada.","estatus":"Sin contactar","proxAccion":"","proxFecha":"","notas":"","origen":"Leads calificados","actividades":[]}];
+const STAGES = [
+  {k:"Sin contactar",   c:"#9CA3AF"},
+  {k:"Contactado",      c:"#0EA5E9"},
+  {k:"En conversación", c:"#2F80ED"},
+  {k:"Reunión agendada",c:"#8B5CF6"},
+  {k:"Propuesta",       c:"#F59E0B"},
+  {k:"Cerrado",         c:"#10B981"},
+  {k:"Descartado",      c:"#EF4444"}
+];
+const ACT_ICONS = {Llamada:"📞",Correo:"✉️",Visita:"🏭",WhatsApp:"💬",LinkedIn:"💼",Nota:"📝"};
+const LS_KEY = "tucsa_crm_v1", LS_CFG = "tucsa_crm_cfg";
+
+let db = load();
+let cfg = JSON.parse(localStorage.getItem(LS_CFG) || '{"mode":"local","gasUrl":""}');
+let filterSt = "", filterPr = "", currentId = null;
+
+function load(){
+  try{ const s = localStorage.getItem(LS_KEY); if(s) return JSON.parse(s); }catch(e){}
+  return JSON.parse(JSON.stringify(SEED));
+}
+function save(){
+  localStorage.setItem(LS_KEY, JSON.stringify(db));
+  renderAll();
+  if(cfg.mode==="sheet" && cfg.gasUrl) autoPush();
+}
+function saveCfg(){ localStorage.setItem(LS_CFG, JSON.stringify(cfg)); }
+
+/* ====== HELPERS ====== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const stage = k => STAGES.find(s=>s.k===k) || STAGES[0];
+const today = () => new Date().toISOString().slice(0,10);
+const MESES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+function fdate(iso){ if(!iso) return ""; const [y,m,d]=iso.split("-"); return parseInt(d)+" "+MESES[parseInt(m)-1]; }
+function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(e._t); e._t=setTimeout(()=>e.classList.remove("show"),2200); }
+
+/* ====== NAV ====== */
+function go(v){
+  document.querySelectorAll(".view").forEach(e=>e.classList.remove("active"));
+  $("view-"+v).classList.add("active");
+  document.querySelectorAll(".nv").forEach(e=>e.classList.toggle("on", e.dataset.v===v));
+  $("fab").classList.toggle("show", v==="pipeline");
+  document.querySelector("main").scrollTop = 0;
+  window.scrollTo(0,0);
+}
+
+/* ====== RENDER: INICIO ====== */
+function renderHome(){
+  const act = db.filter(r=>!["Sin contactar","Descartado","Cerrado"].includes(r.estatus)).length;
+  const won = db.filter(r=>r.estatus==="Cerrado").length;
+  const week = new Date(); week.setDate(week.getDate()+7);
+  const wk = week.toISOString().slice(0,10);
+  const due = db.filter(r=>r.proxFecha && r.proxFecha<=wk && r.estatus!=="Descartado" && r.estatus!=="Cerrado").length
+            + db.filter(r=>r.proxFecha && r.proxFecha<=wk && r.estatus==="Cerrado").length;
+  $("kpis").innerHTML = `
+    <div class="kpi hl"><div class="n">${db.length}</div><div class="l">Prospectos totales</div></div>
+    <div class="kpi"><div class="n">${act}</div><div class="l">En proceso activo</div></div>
+    <div class="kpi"><div class="n" style="color:var(--green)">${won}</div><div class="l">Clientes cerrados</div></div>
+    <div class="kpi"><div class="n" style="color:var(--amber)">${due}</div><div class="l">Acciones esta semana</div></div>`;
+  const max = Math.max(...STAGES.map(s=>db.filter(r=>r.estatus===s.k).length),1);
+  $("funnel").innerHTML = STAGES.map(s=>{
+    const n = db.filter(r=>r.estatus===s.k).length;
+    return `<div class="f-row" onclick="goStage('${s.k}')">
+      <div class="f-lab">${s.k}</div>
+      <div class="f-track"><div class="f-bar" style="width:${Math.round(n/max*100)}%;background:${s.c}"></div></div>
+      <div class="f-n">${n}</div></div>`;
+  }).join("");
+  $("homeActions").innerHTML = actionsHTML(5) || `<div class="empty">Sin acciones programadas. Abre un prospecto y agenda su siguiente paso.</div>`;
+}
+function goStage(k){ filterSt = k; filterPr=""; $("q").value=""; go("pipeline"); renderPipeline(); }
+
+function actionsHTML(limit){
+  const t = today();
+  let rows = db.filter(r=>r.proxFecha && r.proxAccion && r.estatus!=="Descartado")
+               .sort((a,b)=>a.proxFecha.localeCompare(b.proxFecha));
+  if(limit) rows = rows.slice(0,limit);
+  return rows.map(r=>{
+    const [y,m,d] = r.proxFecha.split("-");
+    const od = r.proxFecha < t;
+    return `<div class="action-card ${od?'overdue':''}" onclick="openDetail(${r.id})">
+      <div class="dt"><div class="d">${parseInt(d)}</div><div class="m">${MESES[parseInt(m)-1]}</div></div>
+      <div class="tx"><div class="e">${esc(r.empresa)}</div><div class="a">${od?'⚠️ Vencida · ':''}${esc(r.proxAccion)}</div></div>
+    </div>`;
+  }).join("");
+}
+
+/* ====== RENDER: PIPELINE ====== */
+function renderChips(){
+  $("stChips").innerHTML = `<div class="chip ${!filterSt?'on':''}" onclick="filterSt='';renderPipeline()">Todos <span class="ct">${db.length}</span></div>` +
+    STAGES.map(s=>{
+      const n = db.filter(r=>r.estatus===s.k).length;
+      return `<div class="chip ${filterSt===s.k?'on':''}" onclick="filterSt='${s.k}';renderPipeline()">${s.k} <span class="ct">${n}</span></div>`;
+    }).join("");
+  $("prChips").innerHTML = ["Alta","Media","Baja"].map(p=>
+    `<div class="chip ${filterPr===p?'on':''}" onclick="filterPr=filterPr==='${p}'?'':'${p}';renderPipeline()">Prioridad ${p}</div>`).join("");
+}
+function renderPipeline(){
+  renderChips();
+  const q = $("q").value.trim().toLowerCase();
+  let rows = db.filter(r=>
+    (!filterSt || r.estatus===filterSt) &&
+    (!filterPr || r.prioridad===filterPr) &&
+    (!q || (r.empresa+" "+r.zona+" "+r.sector+" "+r.contactoNombre).toLowerCase().includes(q))
+  );
+  const order = Object.fromEntries(STAGES.map((s,i)=>[s.k,i]));
+  rows.sort((a,b)=>{
+    const pa={Alta:0,Media:1,Baja:2}[a.prioridad]??3, pb={Alta:0,Media:1,Baja:2}[b.prioridad]??3;
+    const sa=order[a.estatus]??0, sb=order[b.estatus]??0;
+    if((sa===0)!==(sb===0)) return sa===0?1:-1; // activos primero
+    if(pa!==pb) return pa-pb;
+    return a.empresa.localeCompare(b.empresa);
+  });
+  $("cnt").textContent = rows.length + " prospecto" + (rows.length===1?"":"s");
+  $("plist").innerHTML = rows.map(r=>{
+    const s = stage(r.estatus);
+    return `<div class="pcard" onclick="openDetail(${r.id})">
+      <div class="pc-top">
+        <div><div class="pc-name">${esc(r.empresa)}</div>
+        ${r.zona?`<div class="pc-zone">📍 ${esc(r.zona)}</div>`:""}
+        ${r.sector?`<div class="pc-sector">${esc(r.sector)}</div>`:""}</div>
+      </div>
+      <div class="pills">
+        <span class="pill" style="background:${s.c}1f;color:${s.c}">${r.estatus}</span>
+        ${r.prioridad?`<span class="pill prio-${r.prioridad}">Prioridad ${r.prioridad}</span>`:""}
+        ${r.tamano?`<span class="pill" style="background:var(--bg-light);color:var(--text-gray)">${esc(r.tamano)}</span>`:""}
+      </div>
+      ${r.proxAccion?`<div class="pc-next">📌 <span><b>${fdate(r.proxFecha)}:</b> ${esc(r.proxAccion)}</span></div>`:""}
+    </div>`;
+  }).join("") || `<div class="empty">Sin resultados con estos filtros.</div>`;
+}
+
+/* ====== RENDER: AGENDA ====== */
+function renderAgenda(){
+  $("agendaList").innerHTML = actionsHTML(0) || `<div class="empty">No hay acciones agendadas.</div>`;
+}
+
+/* ====== DETAIL ====== */
+function openDetail(id){
+  currentId = id;
+  const r = db.find(x=>x.id===id); if(!r) return;
+  $("dTitle").textContent = r.empresa;
+  $("dSub").textContent = [r.zona, r.origen].filter(Boolean).join(" · ");
+  const tel = (r.telefono||"").replace(/[^\d+]/g,"");
+  const mail = (r.correo||"").split(/[;,]/)[0].trim();
+  const web = r.sitio ? (r.sitio.startsWith("http")?r.sitio:"https://"+r.sitio) : "";
+  $("dBody").innerHTML = `
+    <div class="qa-row">
+      <a class="qa ${tel?'':'dis'}" href="tel:${tel}"><div class="ic">📞</div><div class="t">Llamar</div></a>
+      <a class="qa ${tel?'':'dis'}" href="https://wa.me/${tel.replace('+','')}" target="_blank"><div class="ic">💬</div><div class="t">WhatsApp</div></a>
+      <a class="qa ${mail?'':'dis'}" href="mailto:${mail}"><div class="ic">✉️</div><div class="t">Correo</div></a>
+      <a class="qa ${web?'':'dis'}" href="${web}" target="_blank"><div class="ic">🌐</div><div class="t">Sitio</div></a>
+    </div>
+
+    <h2 class="sec">Etapa</h2>
+    <div class="st-chips">${STAGES.map(s=>
+      `<div class="stc ${r.estatus===s.k?'on':''}" style="${r.estatus===s.k?`background:${s.c};border-color:${s.c}`:''}" onclick="setStage(${r.id},'${s.k}')">${s.k}</div>`).join("")}
+    </div>
+
+    ${r.porQue?`<div class="why" style="margin-bottom:12px"><b>¿Por qué es buen prospecto?</b>${esc(r.porQue)}</div>`:""}
+
+    <h2 class="sec">Próxima acción</h2>
+    <div class="fcard"><div class="f2">
+      <div class="frow"><label class="flabel">Fecha</label><input class="finput" type="date" value="${r.proxFecha||''}" onchange="upd(${r.id},'proxFecha',this.value)"></div>
+      <div class="frow"><label class="flabel">Prioridad</label><select class="fsel" onchange="upd(${r.id},'prioridad',this.value)">
+        <option value="">—</option>${["Alta","Media","Baja"].map(p=>`<option ${r.prioridad===p?'selected':''}>${p}</option>`).join("")}</select></div>
+      </div>
+      <div class="frow"><label class="flabel">Acción</label><input class="finput" value="${esc(r.proxAccion)}" placeholder="Ej. Llamar a RH para agendar visita" onchange="upd(${r.id},'proxAccion',this.value)"></div>
+    </div>
+
+    <h2 class="sec">Contacto</h2>
+    <div class="fcard">
+      <div class="f2">
+        <div class="frow"><label class="flabel">Nombre</label><input class="finput" value="${esc(r.contactoNombre)}" placeholder="Tomador de decisión" onchange="upd(${r.id},'contactoNombre',this.value)"></div>
+        <div class="frow"><label class="flabel">Puesto</label><input class="finput" value="${esc(r.contactoPuesto)}" placeholder="Gerente RH" onchange="upd(${r.id},'contactoPuesto',this.value)"></div>
+      </div>
+      <div class="frow"><label class="flabel">Teléfono</label><input class="finput" inputmode="tel" value="${esc(r.telefono)}" placeholder="+52 844 …" onchange="upd(${r.id},'telefono',this.value)"></div>
+      <div class="frow"><label class="flabel">Correo</label><input class="finput" inputmode="email" value="${esc(r.correo)}" placeholder="rh@empresa.com" onchange="upd(${r.id},'correo',this.value)"></div>
+      <div class="f2">
+        <div class="frow"><label class="flabel">Sitio web</label><input class="finput" value="${esc(r.sitio)}" onchange="upd(${r.id},'sitio',this.value)"></div>
+        <div class="frow"><label class="flabel">LinkedIn</label><input class="finput" value="${esc(r.linkedin)}" placeholder="URL perfil" onchange="upd(${r.id},'linkedin',this.value)"></div>
+      </div>
+    </div>
+
+    <h2 class="sec">Empresa</h2>
+    <div class="fcard">
+      <div class="frow"><label class="flabel">Parque / Zona</label><input class="finput" value="${esc(r.zona)}" onchange="upd(${r.id},'zona',this.value)"></div>
+      <div class="f2">
+        <div class="frow"><label class="flabel">Sector</label><input class="finput" value="${esc(r.sector)}" onchange="upd(${r.id},'sector',this.value)"></div>
+        <div class="frow"><label class="flabel">Tamaño plantilla</label><input class="finput" value="${esc(r.tamano)}" placeholder="Ej. 500+" onchange="upd(${r.id},'tamano',this.value)"></div>
+      </div>
+      <div class="frow"><label class="flabel">Notas</label><textarea class="ftxt" onchange="upd(${r.id},'notas',this.value)">${esc(r.notas)}</textarea></div>
+    </div>
+
+    <h2 class="sec">Historial de actividades</h2>
+    <div class="fcard">
+      <div id="actList">${actsHTML(r)}</div>
+      <div class="act-add">
+        <select class="fsel" id="actType">${Object.keys(ACT_ICONS).map(t=>`<option>${t}</option>`).join("")}</select>
+        <input class="finput" id="actText" placeholder="¿Qué pasó?">
+      </div>
+      <button class="btn btn-blue btn-sm btn-full" style="margin-top:8px" onclick="addAct(${r.id})">＋ Registrar actividad</button>
+    </div>
+    <button class="btn btn-red btn-sm btn-full" style="margin-top:4px" onclick="delRec(${r.id})">🗑 Eliminar prospecto</button>
+  `;
+  $("shBg").classList.add("open"); $("sheet").classList.add("open");
+  document.body.style.overflow="hidden";
+}
+function actsHTML(r){
+  if(!r.actividades || !r.actividades.length) return `<div style="font-size:13px;color:var(--text-gray);padding:4px 0 10px">Sin actividades registradas.</div>`;
+  return [...r.actividades].reverse().map(a=>`<div class="act">
+    <div class="dot">${ACT_ICONS[a.tipo]||"📝"}</div>
+    <div class="b"><div class="h">${a.tipo} <span>· ${fdate(a.fecha)}</span></div><div class="x">${esc(a.texto)}</div></div>
+  </div>`).join("");
+}
+function closeSheet(){
+  $("shBg").classList.remove("open"); $("sheet").classList.remove("open");
+  document.body.style.overflow="";
+  currentId = null;
+}
+function upd(id, field, val){
+  const r = db.find(x=>x.id===id); if(!r) return;
+  r[field] = val; save();
+}
+function setStage(id, st){
+  const r = db.find(x=>x.id===id); if(!r) return;
+  r.estatus = st;
+  r.actividades = r.actividades||[];
+  r.actividades.push({fecha:today(), tipo:"Nota", texto:"Etapa cambiada a: "+st});
+  save(); openDetail(id); toast("Etapa: "+st);
+}
+function addAct(id){
+  const r = db.find(x=>x.id===id); if(!r) return;
+  const tx = $("actText").value.trim(); if(!tx) return toast("Escribe la actividad");
+  r.actividades = r.actividades||[];
+  r.actividades.push({fecha:today(), tipo:$("actType").value, texto:tx});
+  save(); openDetail(id); toast("Actividad registrada");
+}
+function delRec(id){
+  if(!confirm("¿Eliminar este prospecto?")) return;
+  db = db.filter(x=>x.id!==id); save(); closeSheet(); toast("Prospecto eliminado");
+}
+function openNew(){
+  const id = Math.max(0,...db.map(r=>r.id))+1;
+  db.push({id, empresa:"Nueva empresa", zona:"", sector:"", tamano:"", prioridad:"", contactoNombre:"", contactoPuesto:"", linkedin:"", telefono:"", correo:"", sitio:"", porQue:"", estatus:"Sin contactar", proxAccion:"", proxFecha:"", notas:"", origen:"Capturado en app", actividades:[{fecha:today(),tipo:"Nota",texto:"Prospecto creado desde la app"}]});
+  save(); openDetail(id);
+  // permitir editar nombre
+  const r = db.find(x=>x.id===id);
+  const t = $("dTitle"); t.contentEditable = true; t.focus();
+  document.execCommand && document.execCommand("selectAll");
+  t.onblur = ()=>{ r.empresa = t.textContent.trim()||"Nueva empresa"; t.contentEditable=false; save(); };
+}
+
+/* ====== GOOGLE SHEETS SYNC ====== */
+const GAS_CODE = `// === TUCSA Seguimiento de Clientes — Google Apps Script ===
+// Pegar en Extensiones > Apps Script de tu Google Sheet y
+// publicar como Aplicacion web (acceso: Cualquier persona).
+const SHEET_NAME = 'Prospectos';
+
+function getSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+}
+function doGet() {
+  const sh = getSheet_();
+  const data = sh.getDataRange().getValues();
+  if (data.length < 2) return out_({ok:true, rows:[]});
+  const head = data.shift();
+  const rows = data.map(function(r){
+    const o = {};
+    head.forEach(function(h,i){ o[h] = r[i]; });
+    if (o.actividades) { try { o.actividades = JSON.parse(o.actividades); } catch(e){ o.actividades = []; } }
+    else o.actividades = [];
+    return o;
+  });
+  return out_({ok:true, rows:rows});
+}
+function doPost(e) {
+  const d = JSON.parse(e.postData.contents);
+  if (d.action !== 'saveAll' || !d.rows) return out_({ok:false, error:'payload'});
+  const sh = getSheet_();
+  const head = ['id','empresa','zona','sector','tamano','prioridad','contactoNombre',
+    'contactoPuesto','linkedin','telefono','correo','sitio','porQue','estatus',
+    'proxAccion','proxFecha','notas','origen','actividades'];
+  sh.clearContents();
+  sh.getRange(1,1,1,head.length).setValues([head]).setFontWeight('bold');
+  const values = d.rows.map(function(r){
+    return head.map(function(h){
+      return h === 'actividades' ? JSON.stringify(r[h]||[]) : (r[h] == null ? '' : r[h]);
+    });
+  });
+  if (values.length) sh.getRange(2,1,values.length,head.length).setValues(values);
+  return out_({ok:true, saved:values.length});
+}
+function out_(o) {
+  return ContentService.createTextOutput(JSON.stringify(o))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+function setMode(m){
+  cfg.mode = m; saveCfg(); renderSettings();
+}
+function renderSettings(){
+  $("modeLocal").classList.toggle("on", cfg.mode==="local");
+  $("modeSheet").classList.toggle("on", cfg.mode==="sheet");
+  $("sheetCfg").style.display = cfg.mode==="sheet" ? "block" : "none";
+  $("gasUrl").value = cfg.gasUrl || "";
+  $("hdBadge").className = cfg.mode==="sheet" && cfg.gasUrl ? "badge-live" : "badge-demo";
+  $("hdBadge").textContent = cfg.mode==="sheet" && cfg.gasUrl ? "EN VIVO" : "DEMO";
+  $("gasCode").textContent = GAS_CODE;
+}
+function syncMsg(cls, txt){ const e=$("syncMsg"); e.className="sync-status "+cls; e.textContent=txt; }
+async function pullSheet(){
+  if(!grabUrl()) return;
+  syncMsg("info","Consultando Google Sheet…");
+  try{
+    const res = await fetch(cfg.gasUrl);
+    const j = await res.json();
+    if(!j.ok) throw new Error(j.error||"respuesta inválida");
+    if(!j.rows.length){ syncMsg("err","El Sheet está vacío. Usa primero «Enviar al Sheet»."); return; }
+    db = j.rows.map(r=>({ ...r, id:Number(r.id), actividades:Array.isArray(r.actividades)?r.actividades:[] }));
+    localStorage.setItem(LS_KEY, JSON.stringify(db));
+    renderAll();
+    syncMsg("ok",`✓ ${db.length} prospectos cargados desde Google Sheets.`);
+  }catch(err){ syncMsg("err","No se pudo leer el Sheet: "+err.message); }
+}
+async function pushSheet(){
+  if(!grabUrl()) return;
+  syncMsg("info","Enviando al Google Sheet…");
+  try{
+    const res = await fetch(cfg.gasUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"saveAll",rows:db})});
+    const j = await res.json();
+    if(!j.ok) throw new Error(j.error||"respuesta inválida");
+    syncMsg("ok",`✓ ${j.saved} prospectos guardados en Google Sheets.`);
+  }catch(err){ syncMsg("err","No se pudo escribir: "+err.message); }
+}
+function grabUrl(){
+  cfg.gasUrl = $("gasUrl").value.trim(); saveCfg(); renderSettings();
+  if(!cfg.gasUrl){ syncMsg("err","Pega primero la URL del Apps Script."); return false; }
+  return true;
+}
+let pushTimer = null;
+function autoPush(){
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(()=>{ pushSheet(); }, 2500);
+}
+function copyGas(){
+  navigator.clipboard.writeText(GAS_CODE).then(()=>toast("Código copiado")).catch(()=>{
+    const ta=document.createElement("textarea"); ta.value=GAS_CODE; document.body.appendChild(ta);
+    ta.select(); document.execCommand("copy"); ta.remove(); toast("Código copiado");
+  });
+}
+
+/* ====== EXPORT / RESET ====== */
+function exportCSV(){
+  const head = ["id","empresa","zona","sector","tamano","prioridad","contactoNombre","contactoPuesto","linkedin","telefono","correo","sitio","porQue","estatus","proxAccion","proxFecha","notas","origen"];
+  const rows = [head.join(",")].concat(db.map(r=>head.map(h=>{
+    let v = String(r[h]??"").replace(/"/g,'""');
+    return /[",\n]/.test(v) ? `"${v}"` : v;
+  }).join(",")));
+  const blob = new Blob(["﻿"+rows.join("\n")],{type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "tucsa_prospectos.csv"; a.click();
+  toast("CSV exportado");
+}
+function resetDemo(){
+  if(!confirm("¿Restablecer los datos originales del demo? Se perderán los cambios locales.")) return;
+  db = JSON.parse(JSON.stringify(SEED));
+  localStorage.setItem(LS_KEY, JSON.stringify(db));
+  renderAll(); toast("Demo restablecido");
+}
+
+/* ====== INIT ====== */
+function renderAll(){ renderHome(); renderPipeline(); renderAgenda(); }
+$("q").addEventListener("input", renderPipeline);
+$("gasUrl") && $("gasUrl").addEventListener("change", ()=>{ cfg.gasUrl=$("gasUrl").value.trim(); saveCfg(); renderSettings(); });
+renderSettings();
+renderAll();
+</script>
+</body>
+</html>

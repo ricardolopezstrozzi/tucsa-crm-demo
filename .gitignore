@@ -1,0 +1,6 @@
+# Nada de fuentes de datos sensibles en este repo
+*.xlsx
+*.xls
+*.csv
+*.pdf
+.claude/
