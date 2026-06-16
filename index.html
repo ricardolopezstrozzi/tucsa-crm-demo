@@ -529,7 +529,7 @@ function setStage(id, st){
 }
 function addAct(id){
   const r = db.find(x=>x.id===id); if(!r) return;
-  const tx = $("actText").value.trim(); if(!tx) return toast("Escribe la actividad");
+  const tx = $("actText").value.trim(); if(!tx) return; // opcional: si está vacío, no hace nada
   r.actividades = r.actividades||[];
   r.actividades.push({fecha:today(), tipo:$("actType").value, texto:tx});
   save(); openDetail(id); toast("Actividad registrada");
