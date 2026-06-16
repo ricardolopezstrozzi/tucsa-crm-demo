@@ -460,35 +460,35 @@ function openDetail(id){
 
     <h2 class="sec">Próxima acción</h2>
     <div class="fcard"><div class="f2">
-      <div class="frow"><label class="flabel">Fecha</label><input class="finput" type="date" value="${r.proxFecha||''}" onchange="upd(${r.id},'proxFecha',this.value)"></div>
-      <div class="frow"><label class="flabel">Prioridad</label><select class="fsel" onchange="upd(${r.id},'prioridad',this.value)">
+      <div class="frow"><label class="flabel">Fecha</label><input class="finput" data-f="proxFecha" type="date" value="${r.proxFecha||''}" onchange="upd(${r.id},'proxFecha',this.value)"></div>
+      <div class="frow"><label class="flabel">Prioridad</label><select class="fsel" data-f="prioridad" onchange="upd(${r.id},'prioridad',this.value)">
         <option value="">—</option>${["Alta","Media","Baja"].map(p=>`<option ${r.prioridad===p?'selected':''}>${p}</option>`).join("")}</select></div>
       </div>
-      <div class="frow"><label class="flabel">Acción</label><input class="finput" value="${esc(r.proxAccion)}" placeholder="Ej. Llamar a RH para agendar visita" onchange="upd(${r.id},'proxAccion',this.value)"></div>
+      <div class="frow"><label class="flabel">Acción</label><input class="finput" data-f="proxAccion" value="${esc(r.proxAccion)}" placeholder="Ej. Llamar a RH para agendar visita" onchange="upd(${r.id},'proxAccion',this.value)"></div>
     </div>
 
     <h2 class="sec">Contacto</h2>
     <div class="fcard">
       <div class="f2">
-        <div class="frow"><label class="flabel">Nombre</label><input class="finput" value="${esc(r.contactoNombre)}" placeholder="Tomador de decisión" onchange="upd(${r.id},'contactoNombre',this.value)"></div>
-        <div class="frow"><label class="flabel">Puesto</label><input class="finput" value="${esc(r.contactoPuesto)}" placeholder="Gerente RH" onchange="upd(${r.id},'contactoPuesto',this.value)"></div>
+        <div class="frow"><label class="flabel">Nombre</label><input class="finput" data-f="contactoNombre" value="${esc(r.contactoNombre)}" placeholder="Tomador de decisión" onchange="upd(${r.id},'contactoNombre',this.value)"></div>
+        <div class="frow"><label class="flabel">Puesto</label><input class="finput" data-f="contactoPuesto" value="${esc(r.contactoPuesto)}" placeholder="Gerente RH" onchange="upd(${r.id},'contactoPuesto',this.value)"></div>
       </div>
-      <div class="frow"><label class="flabel">Teléfono</label><input class="finput" inputmode="tel" value="${esc(r.telefono)}" placeholder="+52 844 …" onchange="upd(${r.id},'telefono',this.value)"></div>
-      <div class="frow"><label class="flabel">Correo</label><input class="finput" inputmode="email" value="${esc(r.correo)}" placeholder="rh@empresa.com" onchange="upd(${r.id},'correo',this.value)"></div>
+      <div class="frow"><label class="flabel">Teléfono</label><input class="finput" data-f="telefono" inputmode="tel" value="${esc(r.telefono)}" placeholder="+52 844 …" onchange="upd(${r.id},'telefono',this.value)"></div>
+      <div class="frow"><label class="flabel">Correo</label><input class="finput" data-f="correo" inputmode="email" value="${esc(r.correo)}" placeholder="rh@empresa.com" onchange="upd(${r.id},'correo',this.value)"></div>
       <div class="f2">
-        <div class="frow"><label class="flabel">Sitio web</label><input class="finput" value="${esc(r.sitio)}" onchange="upd(${r.id},'sitio',this.value)"></div>
-        <div class="frow"><label class="flabel">LinkedIn</label><input class="finput" value="${esc(r.linkedin)}" placeholder="URL perfil" onchange="upd(${r.id},'linkedin',this.value)"></div>
+        <div class="frow"><label class="flabel">Sitio web</label><input class="finput" data-f="sitio" value="${esc(r.sitio)}" onchange="upd(${r.id},'sitio',this.value)"></div>
+        <div class="frow"><label class="flabel">LinkedIn</label><input class="finput" data-f="linkedin" value="${esc(r.linkedin)}" placeholder="URL perfil" onchange="upd(${r.id},'linkedin',this.value)"></div>
       </div>
     </div>
 
     <h2 class="sec">Empresa</h2>
     <div class="fcard">
-      <div class="frow"><label class="flabel">Parque / Zona</label><input class="finput" value="${esc(r.zona)}" onchange="upd(${r.id},'zona',this.value)"></div>
+      <div class="frow"><label class="flabel">Parque / Zona</label><input class="finput" data-f="zona" value="${esc(r.zona)}" onchange="upd(${r.id},'zona',this.value)"></div>
       <div class="f2">
-        <div class="frow"><label class="flabel">Sector</label><input class="finput" value="${esc(r.sector)}" onchange="upd(${r.id},'sector',this.value)"></div>
-        <div class="frow"><label class="flabel">Tamaño plantilla</label><input class="finput" value="${esc(r.tamano)}" placeholder="Ej. 500+" onchange="upd(${r.id},'tamano',this.value)"></div>
+        <div class="frow"><label class="flabel">Sector</label><input class="finput" data-f="sector" value="${esc(r.sector)}" onchange="upd(${r.id},'sector',this.value)"></div>
+        <div class="frow"><label class="flabel">Tamaño plantilla</label><input class="finput" data-f="tamano" value="${esc(r.tamano)}" placeholder="Ej. 500+" onchange="upd(${r.id},'tamano',this.value)"></div>
       </div>
-      <div class="frow"><label class="flabel">Notas</label><textarea class="ftxt" onchange="upd(${r.id},'notas',this.value)">${esc(r.notas)}</textarea></div>
+      <div class="frow"><label class="flabel">Notas</label><textarea class="ftxt" data-f="notas" onchange="upd(${r.id},'notas',this.value)">${esc(r.notas)}</textarea></div>
     </div>
 
     <h2 class="sec">Historial de actividades <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--text-gray)">· opcional</span></h2>
@@ -501,6 +501,9 @@ function openDetail(id){
       <button class="btn btn-blue btn-sm btn-full" style="margin-top:8px" onclick="addAct(${r.id})">＋ Registrar actividad</button>
     </div>
     <button class="btn btn-red btn-sm btn-full" style="margin-top:4px" onclick="delRec(${r.id})">🗑 Eliminar prospecto</button>
+    <div style="position:sticky;bottom:0;left:0;right:0;background:linear-gradient(to top, var(--bg-light) 60%, transparent);padding:14px 0 4px;margin-top:10px">
+      <button class="btn btn-navy btn-full" onclick="guardarFicha()">💾 Guardar cambios</button>
+    </div>
   `;
   $("shBg").classList.add("open"); $("sheet").classList.add("open");
   document.body.style.overflow="hidden";
@@ -511,6 +514,17 @@ function actsHTML(r){
     <div class="dot">${ACT_ICONS[a.tipo]||"📝"}</div>
     <div class="b"><div class="h">${a.tipo} <span>· ${fdate(a.fecha)}</span></div><div class="x">${esc(a.texto)}</div></div>
   </div>`).join("");
+}
+function guardarFicha(){
+  const r = db.find(x=>x.id===currentId); if(!r) return;
+  // Lee TODOS los campos directamente (no depende de que el campo pierda foco en celular)
+  document.querySelectorAll("#dBody [data-f]").forEach(el=>{ r[el.getAttribute("data-f")] = el.value; });
+  clearTimeout(pushTimer);
+  localStorage.setItem(LS_KEY, JSON.stringify(db));
+  localStorage.setItem(LS_VER, SEED_VERSION);
+  renderAll();
+  if(cfg.mode==="sheet" && cfg.gasUrl) pushSheet(true);
+  else toast("✓ Guardado en este dispositivo");
 }
 function closeSheet(){
   $("shBg").classList.remove("open"); $("sheet").classList.remove("open");
