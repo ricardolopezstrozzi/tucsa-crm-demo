@@ -181,7 +181,10 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
       <div class="bus">🚌</div>
       <div><h1>TUCSA</h1><p>Seguimiento de Clientes · Saltillo–Ramos Arizpe</p></div>
     </div>
-    <span id="hdBadge" class="badge-demo">DEMO</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button id="btnRefresh" onclick="pullSheet(true)" title="Actualizar desde Google Sheets" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;line-height:1">↻</button>
+      <span id="hdBadge" class="badge-live">EN VIVO</span>
+    </div>
   </div>
 </header>
 
@@ -211,53 +214,7 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
     <div id="agendaList"></div>
   </section>
 
-  <!-- AJUSTES -->
-  <section class="view" id="view-ajustes">
-    <h2 class="sec">Conexión de datos</h2>
-    <div class="set-card">
-      <h3>¿Dónde se guardan los datos?</h3>
-      <p class="d">En modo <b>Demo</b> los cambios se guardan en este teléfono. En modo <b>Google Sheets</b> la app <b>lee y escribe</b> directamente en tu hoja de cálculo: lo que cambies aquí se ve en el Sheet y viceversa.</p>
-      <div class="mode-row">
-        <div class="mode" id="modeLocal" onclick="setMode('local')"><div class="mt">📱 Demo local</div><div class="ms">Guarda en el teléfono</div></div>
-        <div class="mode" id="modeSheet" onclick="setMode('sheet')"><div class="mt">📊 Google Sheets</div><div class="ms">Lee y escribe en vivo</div></div>
-      </div>
-      <div id="sheetCfg" style="display:none">
-        <div class="frow">
-          <label class="flabel">URL del Web App (Apps Script)</label>
-          <input class="finput" id="gasUrl" placeholder="https://script.google.com/macros/s/…/exec">
-        </div>
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <button class="btn btn-blue btn-sm" style="flex:1" onclick="pullSheet()">⬇️ Traer del Sheet</button>
-          <button class="btn btn-navy btn-sm" style="flex:1" onclick="pushSheet()">⬆️ Enviar al Sheet</button>
-        </div>
-      </div>
-      <div class="sync-status" id="syncMsg"></div>
-    </div>
-
-    <div class="set-card">
-      <h3>Configurar Google Sheets (5 min)</h3>
-      <p class="d">Una sola vez. Después, todo el equipo trabaja sobre el mismo Sheet.</p>
-      <ol class="steps">
-        <li>Crea un Google Sheet nuevo (ej. <code>TUCSA Clientes</code>).</li>
-        <li>Menú <b>Extensiones → Apps Script</b>. Borra el contenido y pega el código de abajo.</li>
-        <li><b>Implementar → Nueva implementación → Aplicación web</b>. Ejecutar como: <i>tú</i>. Acceso: <i>Cualquier persona</i>.</li>
-        <li>Copia la URL que termina en <code>/exec</code> y pégala arriba.</li>
-        <li>Toca <b>Enviar al Sheet</b> para cargar los prospectos por primera vez.</li>
-      </ol>
-      <div class="codebox" id="gasCode"></div>
-      <button class="btn btn-line btn-sm btn-full" onclick="copyGas()">📋 Copiar código</button>
-    </div>
-
-    <div class="set-card">
-      <h3>Datos</h3>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn btn-line btn-sm" style="flex:1" onclick="exportCSV()">⬇️ Exportar CSV</button>
-        <button class="btn btn-red btn-sm" style="flex:1" onclick="resetDemo()">↺ Restablecer demo</button>
-      </div>
-      <p class="d" style="margin:10px 0 0;font-size:12px">Base cargada con 507 prospectos del consolidado (Directorio RLM, Cuentas Objetivo, Ramos Arizpe, Arteaga y Leads TUCSA), ya deduplicados. Todos inician en «Sin contactar».</p>
-    </div>
-    <div class="foot">Demo · Powered by HubSincro · ricardo@hubsincro.com</div>
-  </section>
+  <div class="foot" style="padding-top:8px">Conectado a Google Sheets en vivo · Powered by HubSincro</div>
 </main>
 
 <button class="fab" id="fab" onclick="openNew()">+</button>
@@ -266,7 +223,6 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-w
   <button class="nv on" data-v="inicio" onclick="go('inicio')"><div class="i">🏠</div><div class="t">Inicio</div></button>
   <button class="nv" data-v="pipeline" onclick="go('pipeline')"><div class="i">📋</div><div class="t">Prospectos</div></button>
   <button class="nv" data-v="agenda" onclick="go('agenda')"><div class="i">📅</div><div class="t">Agenda</div></button>
-  <button class="nv" data-v="ajustes" onclick="go('ajustes')"><div class="i">⚙️</div><div class="t">Ajustes</div></button>
 </nav>
 
 <!-- DETAIL SHEET -->
@@ -301,8 +257,11 @@ const ACT_ICONS = {Llamada:"📞",Correo:"✉️",Visita:"🏭",WhatsApp:"💬",
 const LS_KEY = "tucsa_crm_v1", LS_CFG = "tucsa_crm_cfg", LS_VER = "tucsa_crm_seedver";
 const SEED_VERSION = "2026-06-15-507"; // subir esto cada vez que cambie la base => refresca a todos
 
+// === Conexión fija a Google Sheets (siempre activa) ===
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbz9zLwCor7AxZfeImClZJx75yOXzXW0JVBwcrAHhr6QWoDHZ7hVrZ4J-1Gen9UyJHbb/exec";
+
 let db = load();
-let cfg = JSON.parse(localStorage.getItem(LS_CFG) || '{"mode":"local","gasUrl":""}');
+let cfg = { mode:"sheet", gasUrl: SHEET_URL };
 let filterSt = "", filterPr = "", currentId = null;
 
 function load(){
@@ -609,32 +568,21 @@ function out_(o) {
     .setMimeType(ContentService.MimeType.JSON);
 }`;
 
-function setMode(m){
-  cfg.mode = m; saveCfg(); renderSettings();
-}
-function renderSettings(){
-  $("modeLocal").classList.toggle("on", cfg.mode==="local");
-  $("modeSheet").classList.toggle("on", cfg.mode==="sheet");
-  $("sheetCfg").style.display = cfg.mode==="sheet" ? "block" : "none";
-  $("gasUrl").value = cfg.gasUrl || "";
-  $("hdBadge").className = cfg.mode==="sheet" && cfg.gasUrl ? "badge-live" : "badge-demo";
-  $("hdBadge").textContent = cfg.mode==="sheet" && cfg.gasUrl ? "EN VIVO" : "DEMO";
-  $("gasCode").textContent = GAS_CODE;
-}
-function syncMsg(cls, txt){ const e=$("syncMsg"); e.className="sync-status "+cls; e.textContent=txt; }
-async function pullSheet(){
-  if(!grabUrl()) return;
-  syncMsg("info","Consultando Google Sheet…");
+function syncMsg(){} // panel de ajustes eliminado: sin uso
+async function pullSheet(manual){
+  if(!cfg.gasUrl) return;
+  if(manual) toast("Actualizando desde Google Sheets…");
   try{
     const res = await fetch(cfg.gasUrl);
     const j = await res.json();
     if(!j.ok) throw new Error(j.error||"respuesta inválida");
-    if(!j.rows.length){ syncMsg("err","El Sheet está vacío. Usa primero «Enviar al Sheet»."); return; }
+    if(!j.rows.length) return; // Sheet vacío: conservar lo local, no borrar
     db = j.rows.map(r=>({ ...r, id:Number(r.id), actividades:Array.isArray(r.actividades)?r.actividades:[] }));
     localStorage.setItem(LS_KEY, JSON.stringify(db));
+    localStorage.setItem(LS_VER, SEED_VERSION);
     renderAll();
-    syncMsg("ok",`✓ ${db.length} prospectos cargados desde Google Sheets.`);
-  }catch(err){ syncMsg("err","No se pudo leer el Sheet: "+err.message); }
+    if(manual) toast(`✓ ${db.length} prospectos actualizados`);
+  }catch(err){ if(manual) toast("⚠ No se pudo actualizar"); }
 }
 async function pushSheet(auto){
   if(auto){ if(!cfg.gasUrl) return; }
@@ -651,11 +599,7 @@ async function pushSheet(auto){
     else syncMsg("err","No se pudo escribir: "+err.message);
   }
 }
-function grabUrl(){
-  cfg.gasUrl = $("gasUrl").value.trim(); saveCfg(); renderSettings();
-  if(!cfg.gasUrl){ syncMsg("err","Pega primero la URL del Apps Script."); return false; }
-  return true;
-}
+function grabUrl(){ return !!cfg.gasUrl; }
 let pushTimer = null;
 function autoPush(){
   clearTimeout(pushTimer);
@@ -691,9 +635,8 @@ function resetDemo(){
 /* ====== INIT ====== */
 function renderAll(){ renderHome(); renderPipeline(); renderAgenda(); }
 $("q").addEventListener("input", renderPipeline);
-$("gasUrl") && $("gasUrl").addEventListener("change", ()=>{ cfg.gasUrl=$("gasUrl").value.trim(); saveCfg(); renderSettings(); });
-renderSettings();
 renderAll();
+pullSheet(); // al abrir, lee lo más reciente del Google Sheet (segundo plano)
 </script>
 </body>
 </html>
