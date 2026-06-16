@@ -491,7 +491,7 @@ function openDetail(id){
       <div class="frow"><label class="flabel">Notas</label><textarea class="ftxt" onchange="upd(${r.id},'notas',this.value)">${esc(r.notas)}</textarea></div>
     </div>
 
-    <h2 class="sec">Historial de actividades</h2>
+    <h2 class="sec">Historial de actividades <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--text-gray)">· opcional</span></h2>
     <div class="fcard">
       <div id="actList">${actsHTML(r)}</div>
       <div class="act-add">
@@ -525,7 +525,6 @@ function setStage(id, st){
   const r = db.find(x=>x.id===id); if(!r) return;
   r.estatus = st;
   r.actividades = r.actividades||[];
-  r.actividades.push({fecha:today(), tipo:"Nota", texto:"Etapa cambiada a: "+st});
   save(); openDetail(id); toast("Etapa: "+st);
 }
 function addAct(id){
@@ -541,7 +540,7 @@ function delRec(id){
 }
 function openNew(){
   const id = Math.max(0,...db.map(r=>r.id))+1;
-  db.push({id, empresa:"Nueva empresa", zona:"", sector:"", tamano:"", prioridad:"", contactoNombre:"", contactoPuesto:"", linkedin:"", telefono:"", correo:"", sitio:"", porQue:"", estatus:"Sin contactar", proxAccion:"", proxFecha:"", notas:"", origen:"Capturado en app", actividades:[{fecha:today(),tipo:"Nota",texto:"Prospecto creado desde la app"}]});
+  db.push({id, empresa:"Nueva empresa", zona:"", sector:"", tamano:"", prioridad:"", contactoNombre:"", contactoPuesto:"", linkedin:"", telefono:"", correo:"", sitio:"", porQue:"", estatus:"Sin contactar", proxAccion:"", proxFecha:"", notas:"", origen:"Capturado en app", actividades:[]});
   save(); openDetail(id);
   // permitir editar nombre
   const r = db.find(x=>x.id===id);
