@@ -622,15 +622,20 @@ async function pullSheet(){
     syncMsg("ok",`✓ ${db.length} prospectos cargados desde Google Sheets.`);
   }catch(err){ syncMsg("err","No se pudo leer el Sheet: "+err.message); }
 }
-async function pushSheet(){
-  if(!grabUrl()) return;
-  syncMsg("info","Enviando al Google Sheet…");
+async function pushSheet(auto){
+  if(auto){ if(!cfg.gasUrl) return; }
+  else { if(!grabUrl()) return; syncMsg("info","Enviando al Google Sheet…"); }
+  if(auto) toast("Sincronizando con Sheet…");
   try{
     const res = await fetch(cfg.gasUrl,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify({action:"saveAll",rows:db})});
     const j = await res.json();
     if(!j.ok) throw new Error(j.error||"respuesta inválida");
-    syncMsg("ok",`✓ ${j.saved} prospectos guardados en Google Sheets.`);
-  }catch(err){ syncMsg("err","No se pudo escribir: "+err.message); }
+    if(auto) toast(`✓ Guardado en Sheet (${j.saved})`);
+    else syncMsg("ok",`✓ ${j.saved} prospectos guardados en Google Sheets.`);
+  }catch(err){
+    if(auto) toast("⚠ No se pudo sincronizar con el Sheet");
+    else syncMsg("err","No se pudo escribir: "+err.message);
+  }
 }
 function grabUrl(){
   cfg.gasUrl = $("gasUrl").value.trim(); saveCfg(); renderSettings();
@@ -640,7 +645,7 @@ function grabUrl(){
 let pushTimer = null;
 function autoPush(){
   clearTimeout(pushTimer);
-  pushTimer = setTimeout(()=>{ pushSheet(); }, 2500);
+  pushTimer = setTimeout(()=>{ pushSheet(true); }, 2500);
 }
 function copyGas(){
   navigator.clipboard.writeText(GAS_CODE).then(()=>toast("Código copiado")).catch(()=>{
