@@ -298,18 +298,28 @@ const STAGES = [
   {k:"Descartado",      c:"#EF4444"}
 ];
 const ACT_ICONS = {Llamada:"📞",Correo:"✉️",Visita:"🏭",WhatsApp:"💬",LinkedIn:"💼",Nota:"📝"};
-const LS_KEY = "tucsa_crm_v1", LS_CFG = "tucsa_crm_cfg";
+const LS_KEY = "tucsa_crm_v1", LS_CFG = "tucsa_crm_cfg", LS_VER = "tucsa_crm_seedver";
+const SEED_VERSION = "2026-06-15-507"; // subir esto cada vez que cambie la base => refresca a todos
 
 let db = load();
 let cfg = JSON.parse(localStorage.getItem(LS_CFG) || '{"mode":"local","gasUrl":""}');
 let filterSt = "", filterPr = "", currentId = null;
 
 function load(){
-  try{ const s = localStorage.getItem(LS_KEY); if(s) return JSON.parse(s); }catch(e){}
-  return JSON.parse(JSON.stringify(SEED));
+  try{
+    const ver = localStorage.getItem(LS_VER);
+    const s = localStorage.getItem(LS_KEY);
+    // Si nunca se ha guardado, o la base publicada cambió de versión, cargar SEED nuevo.
+    if(s && ver === SEED_VERSION) return JSON.parse(s);
+  }catch(e){}
+  const fresh = JSON.parse(JSON.stringify(SEED));
+  localStorage.setItem(LS_KEY, JSON.stringify(fresh));
+  localStorage.setItem(LS_VER, SEED_VERSION);
+  return fresh;
 }
 function save(){
   localStorage.setItem(LS_KEY, JSON.stringify(db));
+  localStorage.setItem(LS_VER, SEED_VERSION);
   renderAll();
   if(cfg.mode==="sheet" && cfg.gasUrl) autoPush();
 }
@@ -656,6 +666,7 @@ function resetDemo(){
   if(!confirm("¿Restablecer los datos originales del demo? Se perderán los cambios locales.")) return;
   db = JSON.parse(JSON.stringify(SEED));
   localStorage.setItem(LS_KEY, JSON.stringify(db));
+  localStorage.setItem(LS_VER, SEED_VERSION);
   renderAll(); toast("Demo restablecido");
 }
 
